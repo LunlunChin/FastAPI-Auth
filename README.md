@@ -1,4 +1,3 @@
-![image](https://github.com/LunlunChin/FastAPI-Auth/assets/36696204/be35417e-fac0-4b9a-90e2-def9e0ff8eae)
 # FastAPI Auth System
 
 This project demonstrates a simple authentication system using FastAPI for the backend and a basic HTML/JavaScript frontend. It uses JWT (JSON Web Tokens) for handling secure authentication.
