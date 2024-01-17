@@ -1,4 +1,4 @@
-
+![image](https://github.com/LunlunChin/FastAPI-Auth/assets/36696204/be35417e-fac0-4b9a-90e2-def9e0ff8eae)
 # FastAPI Auth System
 
 This project demonstrates a simple authentication system using FastAPI for the backend and a basic HTML/JavaScript frontend. It uses JWT (JSON Web Tokens) for handling secure authentication.
@@ -83,7 +83,9 @@ Follow these steps to get the project up and running on your local machine.
 
 
 6.go to the /logins endpoint to get the SQLite Db data that contains the list of username and login_time
+http://127.0.0.1:8000/logins/
 
-![image](https://github.com/LunlunChin/FastAPI-Auth/assets/36696204/d950ec68-e5fc-4180-8bf4-33a705d862a6)
+![image](https://github.com/LunlunChin/FastAPI-Auth/assets/36696204/69cd7bfd-8d97-4c93-8013-f90df1968651)
+
 
 
