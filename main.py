@@ -5,6 +5,9 @@ from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime
+from sqlalchemy import Integer, create_engine, Table, MetaData, Column, String, DateTime
+import logging
 
 
 SECRET_KEY = "aaafd44178fc0deff7e496e3d03df69e4265a08e65cfc592b11116188c92650b"
@@ -106,16 +109,40 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
+
+engine = create_engine('sqlite:///mydatabase.db')
+metadata = MetaData()
+logins = Table('logins', metadata,
+            Column('id', Integer, primary_key=True),
+            Column('username', String),
+            Column('login_time', DateTime)
+)
+
+
 @app.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
+    
+    try:
+        connection = engine.connect()
+        connection.execute(logins.insert().values(username=user.username, login_time=datetime.now()))
+        connection.commit()  # Explicitly commit the transaction
+        connection.close()
+        logging.info("Login recorded in database for user: %s", user.username)
+    except Exception as e:
+        logging.error("Error inserting login record: %s", str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
-        )
+    )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
@@ -125,4 +152,16 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": "Foo", "owner": current_user.username}]
 
+
+@app.get("/logins/")
+async def read_logins():
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(logins.select())
+            # Assuming 'username' is the first column and 'login_time' is the second
+            logins_list = [{'id': row[0], 'username': row[1], 'login_time': row[2]} for row in result]
+            return logins_list
+    except Exception as e:
+        logging.error("Error fetching logins: %s", str(e))
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
