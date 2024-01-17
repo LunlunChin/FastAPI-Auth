@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Authentication Page</title>
+    <script>
+      window.onload = function () {
+        document
+          .querySelector("form")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+
+            fetch("http://localhost:8000/token", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: new URLSearchParams({
+                username: username,
+                password: password,
+              }),
+            })
+              .then((response) => response.json())
+              .then((data) => console.log(data))
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          });
+      };
+    </script>
+  </head>
+  <body>
+    <h1>Login</h1>
+    <form>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required /><br /><br />
+      <label for="password">Password:</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        required
+      /><br /><br />
+      <input type="submit" value="Login" />
+    </form>
+  </body>
+</html>
